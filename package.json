@@ -1,0 +1,12 @@
+{
+  "name": "violin-module",
+  "version": "1.0.0",
+  "description": "Which wire!",
+  "main": "index.js",
+  "author": "Fighting Mongoose",
+  "license": "ISC",
+  "dependencies": {
+    "aws-iot-device-sdk": "^1.0.11",
+    "chip-gpio": "^1.0.1"
+  }
+}
