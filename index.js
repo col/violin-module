@@ -37,21 +37,35 @@ watchWires();
 
 function disarm() {
   console.log('Disarmed!');
+  greenLED.write(LED_ON);
+  redLED.write(LED_OFF);
   device.publish('mozart', JSON.stringify({ event: 'disarmed', device: deviceName }));
   updateState({ "state": "disarmed" });
 }
 
 function boom() {
   console.log('Boom!');
+  greenLED.write(LED_OFF);
+  redLED.write(LED_ON);
   device.publish('mozart', JSON.stringify({ event: 'boom', device: deviceName }));
   updateState({ "state": "boom" });
 }
 
 function arm() {
   console.log('Armed!');
+  greenLED.write(LED_OFF);
+  redLED.write(LED_ON);
   device.publish('mozart', JSON.stringify({ event: 'armed', device: deviceName }));
   updateState({ "state": "armed" });
 }
+
+function reset() {
+  console.log('Reset');
+  greenLED.write(LED_OFF);
+  redLED.write(LED_OFF);
+}
+
+reset();
 
 function watchWires() {
   for (var i = 0; i < 5; i++) {
