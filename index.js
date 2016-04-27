@@ -1,7 +1,14 @@
 var awsIot = require('aws-iot-device-sdk');
 var Gpio = require('chip-gpio').Gpio;
 var deviceName = "violin-chip";
-
+var deviceCredentials = {
+  keyPath: '/home/chip/.aws-device/private.pem.key',
+  certPath: '/home/chip/.aws-device/certificate.pem.crt',
+  caPath: '/home/chip/.aws-device/root-CA.pem',
+  clientId: deviceName,
+  region: 'ap-southeast-1',
+  reconnectPeriod: 1500
+};
 var button1 = new Gpio(6, 'in', 'both', {
   debounceTimeout: 500
 });
@@ -14,14 +21,7 @@ var button3 = new Gpio(4, 'in', 'both', {
   debounceTimeout: 500
 });
 
-var device = awsIot.device({
-  keyPath: '/home/chip/.aws-device/private.pem.key',
-  certPath: '/home/chip/.aws-device/certificate.pem.crt',
-  caPath: '/home/chip/.aws-device/root-CA.pem',
-  clientId: deviceName,
-  region: 'ap-southeast-1',
-  reconnectPeriod: 1500
-});
+var device = awsIot.device(deviceCredentials);
 
 device.subscribe('mozart');
 
@@ -80,13 +80,7 @@ device.on('message', function(topic, payload) {
     }
 });
 
-var thingShadows = awsIot.thingShadow({
-  keyPath: '/home/chip/.piano-chip/private.pem.key',
-  certPath: '/home/chip/.piano-chip/certificate.pem.crt',
-  caPath: '/home/chip/piano-module/root-CA.pem',
-  clientId: deviceName,
-  region: 'ap-southeast-1',
-});
+var thingShadows = awsIot.thingShadow(deviceCredentials);
 
 thingShadows.on('connect', function() {
   console.log("Shadow Connected!");
