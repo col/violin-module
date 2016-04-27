@@ -10,6 +10,11 @@ var deviceCredentials = {
   reconnectPeriod: 1500
 };
 
+var CONNECTED = true;
+var CUT = false;
+var LED_ON = 0;
+var LED_OFF = 1;
+
 var wires = [
   new Gpio(1, 'in', 'both', { debounceTimeout: 500 }),
   new Gpio(2, 'in', 'both', { debounceTimeout: 500 }),
