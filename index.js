@@ -41,7 +41,7 @@ function disarm() {
   greenLED.write(LED_ON);
   redLED.write(LED_OFF);
   device.publish('mozart', JSON.stringify({ event: 'disarmed', device: deviceName }));
-  updateState({ "state": "disarmed" });
+  // updateState({ "state": "disarmed" });
 }
 
 function boom() {
@@ -49,7 +49,7 @@ function boom() {
   greenLED.write(LED_OFF);
   redLED.write(LED_ON);
   device.publish('mozart', JSON.stringify({ event: 'boom', device: deviceName }));
-  updateState({ "state": "boom" });
+  // updateState({ "state": "boom" });
 }
 
 function arm() {
@@ -57,7 +57,7 @@ function arm() {
   greenLED.write(LED_OFF);
   redLED.write(LED_ON);
   device.publish('mozart', JSON.stringify({ event: 'armed', device: deviceName }));
-  updateState({ "state": "armed" });
+  // updateState({ "state": "armed" });
 }
 
 function reset() {
@@ -100,31 +100,31 @@ device.on('message', function(topic, payload) {
     }
 });
 
-var thingShadows = awsIot.thingShadow(deviceCredentials);
+// var thingShadows = awsIot.thingShadow(deviceCredentials);
 
-thingShadows.on('connect', function() {
-  console.log("Shadow Connected!");
-  thingShadows.register(deviceName);
-});
+// thingShadows.on('connect', function() {
+//   console.log("Shadow Connected!");
+//   thingShadows.register(deviceName);
+// });
 
-function updateState(state) {
-  var clientTokenUpdate = thingShadows.update(deviceName, { "state": { "desired": state } });
-  if (clientTokenUpdate === null) {
-    console.log('update shadow failed, operation still in progress');
-  }
-}
+// function updateState(state) {
+//   var clientTokenUpdate = thingShadows.update(deviceName, { "state": { "desired": state } });
+//   if (clientTokenUpdate === null) {
+//     console.log('update shadow failed, operation still in progress');
+//   }
+// }
 
-thingShadows.on('status', function(thingName, stat, clientToken, stateObject) {
-  console.log('received '+stat+' on '+thingName+': '+ JSON.stringify(stateObject));
-});
+// thingShadows.on('status', function(thingName, stat, clientToken, stateObject) {
+//   console.log('received '+stat+' on '+thingName+': '+ JSON.stringify(stateObject));
+// });
 
-thingShadows.on('delta', function(thingName, stateObject) {
-  console.log('received delta on '+thingName+': '+ JSON.stringify(stateObject));
-});
+// thingShadows.on('delta', function(thingName, stateObject) {
+//   console.log('received delta on '+thingName+': '+ JSON.stringify(stateObject));
+// });
 
-thingShadows.on('timeout', function(thingName, clientToken) {
-  console.log('received timeout on '+thingName+' with token: '+ clientToken);
-});
+// thingShadows.on('timeout', function(thingName, clientToken) {
+//   console.log('received timeout on '+thingName+' with token: '+ clientToken);
+// });
 
 function exit() {
   for (var i = 0; i < 5; i++) {
