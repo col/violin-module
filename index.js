@@ -95,8 +95,6 @@ device.on('message', function(topic, payload) {
       case "reset":
         reset();
         break;
-      // default:
-        //console.log("Unhandled event: " + payload.event);
     }
 });
 
