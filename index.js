@@ -1,3 +1,4 @@
+var _ = require("lodash");
 var awsIot = require('aws-iot-device-sdk');
 var Gpio = require('chip-gpio').Gpio;
 var deviceName = "violin-chip";
