@@ -9,74 +9,71 @@ var deviceCredentials = {
   region: 'ap-southeast-1',
   reconnectPeriod: 1500
 };
-var button1 = new Gpio(6, 'in', 'both', {
-  debounceTimeout: 500
-});
 
-var button2 = new Gpio(5, 'in', 'both', {
-  debounceTimeout: 500
-});
+var wires = [
+  new Gpio(1, 'in', 'both', { debounceTimeout: 500 }),
+  new Gpio(2, 'in', 'both', { debounceTimeout: 500 }),
+  new Gpio(3, 'in', 'both', { debounceTimeout: 500 }),
+  new Gpio(4, 'in', 'both', { debounceTimeout: 500 }),
+  new Gpio(5, 'in', 'both', { debounceTimeout: 500 }),
+];
+var greenLED = new Gpio(6, 'out');
+var redLED = new Gpio(7, 'out');
 
-var button3 = new Gpio(4, 'in', 'both', {
-  debounceTimeout: 500
-});
+var initialState = [ CONNECTED, CONNECTED, CONNECTED, CONNECTED, CONNECTED ];
+var wireStatus = [ CONNECTED, CONNECTED, CONNECTED, CONNECTED, CONNECTED ];
+var correctAnswer = [ CONNECTED, CUT, CONNECTED, CONNECTED, CONNECTED ];
 
 var device = awsIot.device(deviceCredentials);
 
 device.subscribe('mozart');
 
+watchWires();
+
 function disarm() {
+  console.log('Disarmed!');
   device.publish('mozart', JSON.stringify({ event: 'disarmed', device: deviceName }));
   updateState({ "state": "disarmed" });
 }
 
 function boom() {
+  console.log('Boom!');
   device.publish('mozart', JSON.stringify({ event: 'boom', device: deviceName }));
   updateState({ "state": "boom" });
 }
 
 function arm() {
+  console.log('Armed!');
   device.publish('mozart', JSON.stringify({ event: 'armed', device: deviceName }));
   updateState({ "state": "armed" });
 }
 
-button1.watch(function(err, value) {
-  if (err) {
-    throw err;
-  }
-  console.log('Button1 pressed - Disarmed');
-  disarm();
-});
+function watchWires() {
+  for (var i = 0; i < 5; i++) {
+    (function(index){
+      wires[index].watch(function(err, value) {
+        if (err) throw err;
+        console.log("Something happened on wire", index, value);
+        if (value === 1) wireStatus[index] = CUT;
 
-button2.watch(function(err, value) {
-  if (err) {
-    throw err;
+        console.log(_.map(wireStatus, function(status) { return status === CONNECTED ? "CONNECTED" : "CUT" }));
+        if (_.isEqual(wireStatus, correctAnswer)) disarm();
+        else if (!_.isEqual(wireStatus, initialState)) boom();
+      });
+    })(i);
   }
-  console.log('Button2 pressed - Boom!');
-  boom();
-});
-
-button3.watch(function(err, value) {
-  if (err) {
-    throw err;
-  }
-  console.log('Button3 pressed - no nothing');
-});
+}
 
 device.on('message', function(topic, payload) {
-    console.log('Message Received');
-    console.log('Topic: ' + topic);
-    console.log('Payload: ' + payload.toString());
+    console.log('Message Received - Topic: ' + topic + ' Payload: ' + payload.toString());
 
     payload = JSON.parse(payload);
     switch (payload.event) {
       case "arm":
-        // TODO: change state to armed
-        console.log('Armed!');
         arm();
         break;
-      default:
-        console.log("Unhandled event: " + payload.event);
+      // default:
+        //console.log("Unhandled event: " + payload.event);
     }
 });
 
@@ -107,9 +104,9 @@ thingShadows.on('timeout', function(thingName, clientToken) {
 });
 
 function exit() {
-  button1.unexport();
-  button2.unexport();
-  button3.unexport();
+  for (var i = 0; i < 5; i++) {
+    wires[i].unexport();
+  }
   process.exit();
 }
 
