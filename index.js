@@ -92,6 +92,9 @@ device.on('message', function(topic, payload) {
       case "arm":
         arm();
         break;
+      case "reset":
+        reset();
+        break;
       // default:
         //console.log("Unhandled event: " + payload.event);
     }
