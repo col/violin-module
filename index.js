@@ -16,23 +16,19 @@ var CUT = false;
 var LED_ON = 0;
 var LED_OFF = 1;
 
-var wires = [
-  new Gpio(1, 'in', 'both', { debounceTimeout: 500 }),
-  new Gpio(2, 'in', 'both', { debounceTimeout: 500 }),
-  new Gpio(3, 'in', 'both', { debounceTimeout: 500 }),
-  new Gpio(4, 'in', 'both', { debounceTimeout: 500 }),
-  new Gpio(5, 'in', 'both', { debounceTimeout: 500 }),
-];
-var greenLED = new Gpio(6, 'out');
-var redLED = new Gpio(7, 'out');
-
-var initialState = [ CONNECTED, CONNECTED, CONNECTED, CONNECTED, CONNECTED ];
-var wireStatus = [ CONNECTED, CONNECTED, CONNECTED, CONNECTED, CONNECTED ];
-var correctAnswer = [ CONNECTED, CUT, CONNECTED, CONNECTED, CONNECTED ];
-
 var device = awsIot.device(deviceCredentials);
 
 device.subscribe('mozart');
+
+
+var greenLED = new Gpio(6, 'out');
+var redLED = new Gpio(7, 'out');
+
+
+var wires = [];
+var initialState = [];
+var wireStatus = [];
+var correctAnswer;
 
 watchWires();
 
@@ -56,7 +52,7 @@ function arm() {
   console.log('Armed!');
   greenLED.write(LED_OFF);
   redLED.write(LED_ON);
-  device.publish('mozart', JSON.stringify({ event: 'armed', device: deviceName }));
+  device.publish('mozart', JSON.stringify({ event: 'armed', device: deviceName, hint: "Doodl" }));
   // updateState({ "state": "armed" });
 }
 
@@ -64,6 +60,26 @@ function reset() {
   console.log('Reset');
   greenLED.write(LED_OFF);
   redLED.write(LED_OFF);
+  wires = [];
+  initialState = [];
+  wireStatus = [];
+}
+
+function config(payload) {
+  if(payload.device != deviceName){
+    return;
+  }
+  reset();
+  console.log('Config');
+  var numberOfWires = payload.data.length;
+
+  for(var i=1;i<= numberOfWires;i++){
+    wires.push(new Gpio(i, 'in', 'both', { debounceTimeout: 500 }));
+    initialState.push(CONNECTED);
+    wireStatus.push(CONNECTED);
+  };
+
+  correctAnswer = payload.data;
 }
 
 reset();
@@ -95,6 +111,9 @@ device.on('message', function(topic, payload) {
       case "reset":
         reset();
         break;
+      case "config":
+        config(payload);
+        break;  
     }
 });
 
