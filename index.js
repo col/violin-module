@@ -35,7 +35,7 @@ function disarm() {
   greenLED.write(LED_ON);
   redLED.write(LED_OFF);
   device.publish('mozart', JSON.stringify({ event: 'disarmed', device: deviceName }));
-  // updateState({ "state": "disarmed" });
+  unwatchWires();
 }
 
 function boom() {
@@ -43,7 +43,7 @@ function boom() {
   greenLED.write(LED_OFF);
   redLED.write(LED_ON);
   device.publish('mozart', JSON.stringify({ event: 'boom', device: deviceName }));
-  // updateState({ "state": "boom" });
+  unwatchWires();
 }
 
 function arm() {
@@ -51,8 +51,7 @@ function arm() {
   greenLED.write(LED_OFF);
   redLED.write(LED_ON);
   watchWires();
-  device.publish('mozart', JSON.stringify({ event: 'armed', device: deviceName, hint: "Doodl" }));
-  // updateState({ "state": "armed" });
+  device.publish('mozart', JSON.stringify({ event: 'armed', device: deviceName }));
 }
 
 function reset() {
@@ -98,7 +97,6 @@ function watchWires() {
         console.log("Something happened on wire", index, value);
         if (value === 1) wireStatus[index] = CUT;
 
-        // console.log(_.map(wireStatus, function(status) { return status === CONNECTED ? "CONNECTED" : "CUT" }));
         console.log("answer", correctAnswer);
         console.log("wireStatus", wireStatus);
         if (_.isEqual(wireStatus, correctAnswer)) disarm();
@@ -126,7 +124,7 @@ device.on('message', function(topic, payload) {
 });
 
 function exit() {
-  for (var i = 0; i < 5; i++) {
+  for (var i = 0; i < wires.length; i++) {
     wires[i].unexport();
   }
   process.exit();
