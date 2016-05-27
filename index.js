@@ -98,7 +98,9 @@ function watchWires() {
         console.log("Something happened on wire", index, value);
         if (value === 1) wireStatus[index] = CUT;
 
-        console.log(_.map(wireStatus, function(status) { return status === CONNECTED ? "CONNECTED" : "CUT" }));
+        // console.log(_.map(wireStatus, function(status) { return status === CONNECTED ? "CONNECTED" : "CUT" }));
+        console.log("answer", correctAnswer);
+        console.log("wireStatus", wireStatus);
         if (_.isEqual(wireStatus, correctAnswer)) disarm();
         else if (!_.isEqual(wireStatus, initialState)) boom();
       });
