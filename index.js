@@ -30,8 +30,6 @@ var initialState = [];
 var wireStatus = [];
 var correctAnswer;
 
-watchWires();
-
 function disarm() {
   console.log('Disarmed!');
   greenLED.write(LED_ON);
@@ -52,6 +50,7 @@ function arm() {
   console.log('Armed!');
   greenLED.write(LED_OFF);
   redLED.write(LED_ON);
+  watchWires();
   device.publish('mozart', JSON.stringify({ event: 'armed', device: deviceName, hint: "Doodl" }));
   // updateState({ "state": "armed" });
 }
@@ -60,9 +59,16 @@ function reset() {
   console.log('Reset');
   greenLED.write(LED_OFF);
   redLED.write(LED_OFF);
+  unwatchWires();
   wires = [];
   initialState = [];
   wireStatus = [];
+}
+
+function unwatchWires() {
+  for (var index = 0; index < wires.length ; index++) {
+    wires[index].unwatch();
+  }
 }
 
 function config(payload) {
@@ -85,7 +91,7 @@ function config(payload) {
 reset();
 
 function watchWires() {
-  for (var i = 0; i < 5; i++) {
+  for (var i = 0; i < wires.length; i++) {
     (function(index){
       wires[index].watch(function(err, value) {
         if (err) throw err;
@@ -113,35 +119,9 @@ device.on('message', function(topic, payload) {
         break;
       case "config":
         config(payload);
-        break;  
+        break;
     }
 });
-
-// var thingShadows = awsIot.thingShadow(deviceCredentials);
-
-// thingShadows.on('connect', function() {
-//   console.log("Shadow Connected!");
-//   thingShadows.register(deviceName);
-// });
-
-// function updateState(state) {
-//   var clientTokenUpdate = thingShadows.update(deviceName, { "state": { "desired": state } });
-//   if (clientTokenUpdate === null) {
-//     console.log('update shadow failed, operation still in progress');
-//   }
-// }
-
-// thingShadows.on('status', function(thingName, stat, clientToken, stateObject) {
-//   console.log('received '+stat+' on '+thingName+': '+ JSON.stringify(stateObject));
-// });
-
-// thingShadows.on('delta', function(thingName, stateObject) {
-//   console.log('received delta on '+thingName+': '+ JSON.stringify(stateObject));
-// });
-
-// thingShadows.on('timeout', function(thingName, clientToken) {
-//   console.log('received timeout on '+thingName+' with token: '+ clientToken);
-// });
 
 function exit() {
   for (var i = 0; i < 5; i++) {
