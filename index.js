@@ -62,6 +62,7 @@ function reset() {
   unwatchWires();
   for (var index = 0; index < initialState.length; index++) {
     initialState[index] = CONNECTED;
+    wireStatus[index] = CONNECTED;
   }
 }
 
