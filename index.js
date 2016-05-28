@@ -59,9 +59,6 @@ function reset() {
   greenLED.write(LED_OFF);
   redLED.write(LED_OFF);
   unwatchWires();
-  wires = [];
-  initialState = [];
-  wireStatus = [];
 }
 
 function unwatchWires() {
@@ -75,6 +72,11 @@ function config(payload) {
     return;
   }
   reset();
+
+  wires = [];
+  initialState = [];
+  wireStatus = [];
+  
   console.log('Config');
   var numberOfWires = payload.data.length;
 
