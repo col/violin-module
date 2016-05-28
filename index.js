@@ -47,6 +47,7 @@ function boom() {
 }
 
 function arm() {
+  reset();
   console.log('Armed!');
   greenLED.write(LED_OFF);
   redLED.write(LED_ON);
@@ -59,6 +60,9 @@ function reset() {
   greenLED.write(LED_OFF);
   redLED.write(LED_OFF);
   unwatchWires();
+  for (var index = 0; index < initialState.length; index++) {
+    initialState[index] = CONNECTED;
+  }
 }
 
 function unwatchWires() {
@@ -76,7 +80,7 @@ function config(payload) {
   wires = [];
   initialState = [];
   wireStatus = [];
-  
+
   console.log('Config');
   var numberOfWires = payload.data.length;
 
